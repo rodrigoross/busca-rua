@@ -8,7 +8,7 @@ html {
   border: 1px solid #ccc;
   margin: 2rem auto;
   display: flex;
-  justify-self: center;
+  justify-content: center;
   align-items: center;
   text-align: center;
 }
