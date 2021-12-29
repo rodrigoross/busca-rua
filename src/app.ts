@@ -1,4 +1,5 @@
 import axios from "axios";
+// import ol from 'ol';
 
 const form = document.querySelector("form")!;
 const inputEndereco = document.getElementById("endereco")! as HTMLInputElement;
@@ -14,11 +15,23 @@ type NominationGeocodingResponse = [
   }
 ];
 
+declare var ol: any;
+
 function buscaEnderecoHandler(event: Event) {
   event.preventDefault();
 
   const endereco = inputEndereco.value;
-  const uriEndereco = endereco.split(" ").join("+");
+
+  // const numero = +endereco[1];
+  // let uriEndereco = "";
+
+  // if (numero != null) {
+  //   uriEndereco = uriEndereco + numero + ' '
+  // }
+  // uriEndereco = uriEndereco +  endereco[0].split(" ").join("+");
+
+  const uriEndereco = endereco.split(' ').join('+')
+  console.log(uriEndereco)
 
   axios
     .get<NominationGeocodingResponse>(
@@ -32,11 +45,29 @@ function buscaEnderecoHandler(event: Event) {
         throw new Error("Nenhum local encontrado!");
       }
 
-      const coordenadas: [number, number] = [
-        +response.data[0].lat,
-        +response.data[0].lon,
-      ];
+      const coordenadas: {
+        lng: number;
+        lat: number;
+      } = {
+        lat: +response.data[0].lat,
+        lng: +response.data[0].lon,
+      };
+
       console.log(coordenadas);
+
+      document.getElementById("map")!.innerHTML = ""; // clear <p> from <div id="map">
+      new ol.Map({
+        target: "map",
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM(),
+          }),
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([coordenadas.lng, coordenadas.lat]),
+          zoom: 20,
+        }),
+      });
     })
     .catch((error) => {
       alert(error.message);
